@@ -1,20 +1,190 @@
+/* ============================================
+   Smart Pharmacy - app.css
+   Dark Mode + RTL/LTR support
+   ============================================ */
+
 @import 'bootstrap/dist/css/bootstrap.rtl.min.css';
 @import 'bootstrap-icons/font/bootstrap-icons.css';
 @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 
+/* ---- CSS Variables (Light Mode) ---- */
 :root {
     --primary-color: #0d6efd;
     --primary-gradient: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
     --success-gradient: linear-gradient(135deg, #198754 0%, #157347 100%);
+
+    --bg-body:     #f4f6f9;
+    --bg-card:     #ffffff;
+    --bg-navbar:   #ffffff;
+    --bg-input:    #ffffff;
+    --text-main:   #212529;
+    --text-muted:  #6c757d;
+    --border-color:#dee2e6;
+    --shadow-sm:   0 4px 16px rgba(0,0,0,.05);
+    --shadow-md:   0 6px 20px rgba(0,0,0,.08);
+    --nav-active-bg: #e7f1ff;
+    --nav-active-color: #0d6efd;
 }
 
+/* ---- Dark Mode Variables ---- */
+[data-theme="dark"] {
+    --bg-body:     #0f1117;
+    --bg-card:     #1a1d2e;
+    --bg-navbar:   #12151f;
+    --bg-input:    #1e2233;
+    --text-main:   #e2e8f0;
+    --text-muted:  #8892a4;
+    --border-color:#2d3348;
+    --shadow-sm:   0 4px 16px rgba(0,0,0,.3);
+    --shadow-md:   0 6px 24px rgba(0,0,0,.4);
+    --nav-active-bg: #1e3a6e;
+    --nav-active-color: #60a5fa;
+    --primary-color: #60a5fa;
+}
+
+/* ---- LTR Mode ---- */
+[dir="ltr"] {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ---- Base ---- */
 body {
     font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background-color: #f4f6f9;
-    color: #333;
+    background-color: var(--bg-body);
+    color: var(--text-main);
     min-height: 100vh;
+    transition: background-color .3s ease, color .3s ease;
 }
 
+/* ---- Navbar ---- */
+.navbar {
+    box-shadow: 0 2px 12px rgba(0,0,0,.06);
+    background: var(--bg-navbar) !important;
+    border-bottom: 1px solid var(--border-color);
+    transition: background .3s ease;
+}
+
+.nav-link {
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border-radius: 10px;
+    padding: 0.5rem 0.9rem !important;
+    cursor: pointer;
+    color: var(--text-main) !important;
+}
+
+.nav-link.active {
+    background-color: var(--nav-active-bg);
+    color: var(--nav-active-color) !important;
+    font-weight: 700;
+}
+
+/* ---- Cards ---- */
+.card {
+    border: 1px solid var(--border-color) !important;
+    border-radius: 16px;
+    background-color: var(--bg-card) !important;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color .3s ease;
+    color: var(--text-main);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+/* ---- Inputs (dark mode) ---- */
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+    background-color: var(--bg-input);
+    border-color: var(--border-color);
+    color: var(--text-main);
+}
+
+[data-theme="dark"] .form-control::placeholder {
+    color: var(--text-muted);
+}
+
+[data-theme="dark"] .modal-content {
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .modal-header,
+[data-theme="dark"] .modal-footer {
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .dropdown-menu {
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .table {
+    color: var(--text-main);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > * {
+    background-color: rgba(255,255,255,.03);
+    color: var(--text-main);
+}
+
+[data-theme="dark"] .list-group-item {
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+    color: var(--text-main);
+}
+
+/* ---- Dark Mode Toggle Button ---- */
+.theme-toggle-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-main);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all .25s ease;
+}
+
+.theme-toggle-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transform: rotate(20deg) scale(1.1);
+}
+
+/* ---- Lang Toggle ---- */
+.lang-toggle-btn {
+    height: 34px;
+    border-radius: 20px;
+    border: 2px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-main);
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0 14px;
+    cursor: pointer;
+    transition: all .2s ease;
+    white-space: nowrap;
+}
+
+.lang-toggle-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+/* ---- Brand Logo ---- */
 .brand-logo {
     background: var(--primary-gradient);
     color: white;
@@ -25,39 +195,10 @@ body {
     align-items: center;
     justify-content: center;
     font-size: 1.4rem;
-    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.25);
+    box-shadow: 0 4px 10px rgba(13,110,253,.25);
 }
 
-.navbar {
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-    background: #ffffff !important;
-}
-
-.nav-link {
-    font-weight: 500;
-    transition: all 0.2s ease;
-    border-radius: 10px;
-    padding: 0.5rem 0.9rem !important;
-    cursor: pointer;
-}
-
-.nav-link.active {
-    background-color: #e7f1ff;
-    color: #0d6efd !important;
-    font-weight: 700;
-}
-
-.card {
-    border: none;
-    border-radius: 16px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.card:hover {
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-}
-
+/* ---- Stat Icon ---- */
 .stat-icon {
     width: 52px;
     height: 52px;
@@ -68,6 +209,7 @@ body {
     font-size: 1.6rem;
 }
 
+/* ---- Medicine Cards ---- */
 .medicine-card {
     border-radius: 16px;
     overflow: hidden;
@@ -88,31 +230,24 @@ body {
     color: #198754;
 }
 
-.badge-soft-primary {
-    background-color: #e7f1ff;
-    color: #0d6efd;
-}
+/* ---- Soft Badges ---- */
+.badge-soft-primary { background-color: #e7f1ff; color: #0d6efd; }
+.badge-soft-success { background-color: #d1e7dd; color: #0f5132; }
+.badge-soft-warning { background-color: #fff3cd; color: #664d03; }
+.badge-soft-danger  { background-color: #f8d7da; color: #842029; }
 
-.badge-soft-success {
-    background-color: #d1e7dd;
-    color: #0f5132;
-}
+[data-theme="dark"] .badge-soft-primary { background-color: #1e3a6e; color: #90c0ff; }
+[data-theme="dark"] .badge-soft-success { background-color: #0d3321; color: #5fba7d; }
+[data-theme="dark"] .badge-soft-warning { background-color: #3d2e00; color: #ffd97d; }
+[data-theme="dark"] .badge-soft-danger  { background-color: #3d0d12; color: #f98b94; }
 
-.badge-soft-warning {
-    background-color: #fff3cd;
-    color: #664d03;
-}
-
-.badge-soft-danger {
-    background-color: #f8d7da;
-    color: #842029;
-}
-
+/* ---- Buttons ---- */
 .btn-pill {
     border-radius: 50px;
     padding: 0.4rem 1.2rem;
 }
 
+/* ---- Category Filter ---- */
 .category-badge-filter {
     cursor: pointer;
     transition: all 0.2s;
@@ -124,6 +259,7 @@ body {
     color: white !important;
 }
 
+/* ---- Stock Control ---- */
 .stock-control-btn {
     width: 32px;
     height: 32px;
@@ -134,14 +270,40 @@ body {
     border-radius: 8px;
 }
 
-/* تنسيقات الطباعة للفاتورة */
+/* ---- Activity Log Colors ---- */
+.log-action-أضاف  { color: #198754; }
+.log-action-عدّل  { color: #0d6efd; }
+.log-action-حذف   { color: #dc3545; }
+.log-action-طلب   { color: #fd7e14; }
+
+/* ---- Chart containers ---- */
+.chart-container {
+    background: var(--bg-card);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    padding: 1.25rem;
+}
+
+/* ---- Recharts dark mode overrides ---- */
+[data-theme="dark"] .recharts-text {
+    fill: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .recharts-cartesian-axis-line,
+[data-theme="dark"] .recharts-cartesian-grid-horizontal line,
+[data-theme="dark"] .recharts-cartesian-grid-vertical line {
+    stroke: var(--border-color) !important;
+}
+
+[data-theme="dark"] .recharts-tooltip-wrapper .recharts-default-tooltip {
+    background: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* ---- Print ---- */
 @media print {
-    body * {
-        visibility: hidden !important;
-    }
-    #printableInvoice, #printableInvoice * {
-        visibility: visible !important;
-    }
+    body * { visibility: hidden !important; }
+    #printableInvoice, #printableInvoice * { visibility: visible !important; }
     #printableInvoice {
         position: absolute !important;
         left: 0 !important;
@@ -150,7 +312,5 @@ body {
         margin: 0 !important;
         padding: 20px !important;
     }
-    .d-print-none, .modal-backdrop {
-        display: none !important;
-    }
+    .d-print-none, .modal-backdrop { display: none !important; }
 }

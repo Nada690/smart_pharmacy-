@@ -7,6 +7,8 @@ import CategoriesList from './components/CategoriesList';
 import CartView from './components/CartView';
 import OrdersList from './components/OrdersList';
 import PrescriptionsView from './components/PrescriptionsView';
+import ActivityLogs from './components/ActivityLogs';
+import LoginModal from './components/LoginModal';
 import MedicineModal from './components/MedicineModal';
 import CategoryModal from './components/CategoryModal';
 import AlternativesModal from './components/AlternativesModal';
@@ -20,6 +22,53 @@ export default function PharmacyApp() {
     const [orders, setOrders] = useState([]);
     const [prescriptions, setPrescriptions] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    // حالة المصادقة (موقفة مؤقتاً للتجربة)
+    const [user, setUser] = useState({ name: 'Admin', email: 'admin@pharmacy.com', role: 'admin' });
+    const [loginModalOpen, setLoginModalOpen] = useState(false);
+
+    // إعدادات اللغة والوضع الداكن
+    const [darkMode, setDarkMode] = useState(() => {
+        try {
+            return localStorage.getItem('pharmacy_dark_mode') === 'true';
+        } catch {
+            return false;
+        }
+    });
+
+    const [lang, setLang] = useState(() => {
+        try {
+            return localStorage.getItem('pharmacy_lang') || 'ar';
+        } catch {
+            return 'ar';
+        }
+    });
+
+    useEffect(() => {
+        localStorage.setItem('pharmacy_dark_mode', darkMode);
+        document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+    }, [darkMode]);
+
+    useEffect(() => {
+        localStorage.setItem('pharmacy_lang', lang);
+        document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+        document.documentElement.setAttribute('lang', lang);
+    }, [lang]);
+
+    const handleLoginSuccess = (userData) => {
+        setUser(userData);
+        localStorage.setItem('pharmacy_user', JSON.stringify(userData));
+    };
+
+    const handleLogout = async () => {
+        try {
+            await axios.post('/api/logout');
+        } catch (err) {
+            console.error('Logout error:', err);
+        }
+        setUser(null);
+        localStorage.removeItem('pharmacy_user');
+    };
 
     // سلة المشتريات (مع الحفظ في LocalStorage)
     const [cart, setCart] = useState(() => {
@@ -237,13 +286,20 @@ export default function PharmacyApp() {
     return (
         <div className="d-flex flex-column min-vh-100">
             {/* الشريط العلوي */}
-            <Navbar 
+            <Navbar
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
                 stats={stats}
                 cartCount={totalCartCount}
                 onOpenMedicineModal={() => { setEditingMedicine(null); setMedicineModalOpen(true); }}
                 onOpenCategoryModal={() => setCategoryModalOpen(true)}
+                darkMode={darkMode}
+                onToggleDark={() => setDarkMode(!darkMode)}
+                lang={lang}
+                onToggleLang={() => setLang(lang === 'ar' ? 'en' : 'ar')}
+                user={user}
+                onOpenLogin={() => setLoginModalOpen(true)}
+                onLogout={handleLogout}
             />
 
             {/* رسائل التنبيهات المنبثقة */}
@@ -322,11 +378,15 @@ export default function PharmacyApp() {
                         )}
 
                         {activeTab === 'prescriptions' && (
-                            <PrescriptionsView 
+                            <PrescriptionsView
                                 prescriptions={prescriptions}
                                 onRefresh={loadAllData}
                                 showAlert={showAlert}
                             />
+                        )}
+
+                        {activeTab === 'logs' && (
+                            <ActivityLogs />
                         )}
                     </>
                 )}
@@ -358,10 +418,17 @@ export default function PharmacyApp() {
             />
 
             {/* مودال طباعة الفاتورة */}
-            <InvoiceModal 
+            <InvoiceModal
                 isOpen={Boolean(selectedInvoiceOrder)}
                 onClose={() => setSelectedInvoiceOrder(null)}
                 order={selectedInvoiceOrder}
+            />
+
+            {/* مودال تسجيل الدخول */}
+            <LoginModal
+                isOpen={loginModalOpen}
+                onClose={() => setLoginModalOpen(false)}
+                onLoginSuccess={handleLoginSuccess}
             />
 
             {/* التذييل (Footer) */}

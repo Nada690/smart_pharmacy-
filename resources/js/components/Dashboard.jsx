@@ -1,17 +1,31 @@
 import React from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
-export default function Dashboard({ 
-    stats, 
-    medicines, 
-    setActiveTab, 
-    onOpenMedicineModal, 
-    onOpenCategoryModal, 
+export default function Dashboard({
+    stats,
+    medicines,
+    setActiveTab,
+    onOpenMedicineModal,
+    onOpenCategoryModal,
     onAdjustStock,
     onOpenAlternatives
 }) {
     const lowStockMedicines = medicines.filter(m => m.stock_quantity > 0 && m.stock_quantity <= 5);
     const outOfStockMedicines = medicines.filter(m => m.stock_quantity === 0);
     const expiringSoonMedicines = medicines.filter(m => m.is_expiring_soon || m.is_expired);
+
+    // بيانات الرسوم البيانية
+    const stockDistribution = [
+        { name: 'متوفر', value: stats?.total_medicines - stats?.low_stock_count - stats?.out_of_stock_count || 0, color: '#198754' },
+        { name: 'مخزون حرج', value: stats?.low_stock_count || 0, color: '#ffc107' },
+        { name: 'نفذ من المخزن', value: stats?.out_of_stock_count || 0, color: '#dc3545' },
+    ];
+
+    const topSellingData = (stats?.top_selling || []).map((item, idx) => ({
+        name: item.medicine_name.substring(0, 20) + (item.medicine_name.length > 20 ? '...' : ''),
+        quantity: item.total_sold,
+        revenue: parseFloat(item.total_revenue)
+    }));
 
     return (
         <div className="container pb-5">
@@ -85,6 +99,67 @@ export default function Dashboard({
                             <div className="stat-icon bg-warning-subtle text-warning">
                                 <i className="bi bi-hourglass-split"></i>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* الرسوم البيانية */}
+            <div className="row g-4 mb-4">
+                {/* رسم بياني للمخزون */}
+                <div className="col-12 col-lg-6">
+                    <div className="card h-100 shadow-sm border-0 rounded-4">
+                        <div className="card-header bg-white border-0 pt-4 px-4">
+                            <h5 className="fw-bold mb-0 text-dark d-flex align-items-center gap-2">
+                                <i className="bi bi-pie-chart-fill text-primary"></i>
+                                توزيع المخزون
+                            </h5>
+                        </div>
+                        <div className="card-body">
+                            <ResponsiveContainer width="100%" height={250}>
+                                <PieChart>
+                                    <Pie
+                                        data={stockDistribution}
+                                        cx="50%"
+                                        cy="50%"
+                                        labelLine={false}
+                                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                        outerRadius={80}
+                                        fill="#8884d8"
+                                        dataKey="value"
+                                    >
+                                        {stockDistribution.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                </div>
+
+                {/* رسم بياني للأكثر مبيعاً */}
+                <div className="col-12 col-lg-6">
+                    <div className="card h-100 shadow-sm border-0 rounded-4">
+                        <div className="card-header bg-white border-0 pt-4 px-4">
+                            <h5 className="fw-bold mb-0 text-dark d-flex align-items-center gap-2">
+                                <i className="bi bi-bar-chart-fill text-success"></i>
+                                الأدوية الأكثر مبيعاً
+                            </h5>
+                        </div>
+                        <div className="card-body">
+                            <ResponsiveContainer width="100%" height={250}>
+                                <BarChart data={topSellingData}>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                                    <YAxis tick={{ fontSize: 12 }} />
+                                    <Tooltip />
+                                    <Legend />
+                                    <Bar dataKey="quantity" fill="#0d6efd" name="الكمية المباعة" />
+                                    <Bar dataKey="revenue" fill="#198754" name="الإيرادات" />
+                                </BarChart>
+                            </ResponsiveContainer>
                         </div>
                     </div>
                 </div>

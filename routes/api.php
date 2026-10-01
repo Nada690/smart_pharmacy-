@@ -2,6 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PharmacyApiController;
+use App\Http\Controllers\AuthController;
+
+// المصادقة
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
+Route::get('/user', [AuthController::class, 'user'])->middleware('auth');
 
 // الإحصائيات
 Route::get('/stats', [PharmacyApiController::class, 'stats']);
@@ -31,3 +38,9 @@ Route::put('/orders/{id}/status', [PharmacyApiController::class, 'updateOrderSta
 Route::get('/prescriptions', [PharmacyApiController::class, 'getPrescriptions']);
 Route::post('/prescriptions', [PharmacyApiController::class, 'storePrescription']);
 Route::put('/prescriptions/{id}/status', [PharmacyApiController::class, 'updatePrescriptionStatus']);
+
+// سجل الأنشطة
+Route::get('/activity-logs', [PharmacyApiController::class, 'getActivityLogs']);
+
+// الرسوم البيانية والمبيعات الشهرية
+Route::get('/charts/monthly-sales', [PharmacyApiController::class, 'getMonthlySales']);

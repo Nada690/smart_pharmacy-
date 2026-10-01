@@ -9,5 +9,11 @@
 </head>
 <body>
     <div id="app"></div>
+    <script>
+        // Debug info
+        console.log('Page loaded');
+        const appDiv = document.getElementById('app');
+        console.log('App div:', appDiv);
+    </script>
 </body>
 </html>

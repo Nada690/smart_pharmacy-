@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Category;
 use App\Models\Medicine;
 use App\Models\Order;
@@ -172,6 +173,8 @@ class PharmacyApiController extends Controller
         $medicine = Medicine::create($validated);
         $medicine->load('category');
 
+        ActivityLog::log('أضاف', 'دواء', $medicine->name, "تمت إضافة الدواء بسعر {$medicine->price} ج.م ومخزون {$medicine->stock_quantity}");
+
         return response()->json([
             'message' => 'تم إضافة الدواء بنجاح!',
             'medicine' => $medicine,
@@ -198,6 +201,8 @@ class PharmacyApiController extends Controller
         $medicine->update($validated);
         $medicine->load('category');
 
+        ActivityLog::log('عدّل', 'دواء', $medicine->name, 'تم تعديل بيانات الدواء');
+
         return response()->json([
             'message' => 'تم تحديث بيانات الدواء بنجاح!',
             'medicine' => $medicine,
@@ -208,6 +213,7 @@ class PharmacyApiController extends Controller
     public function deleteMedicine($id)
     {
         $medicine = Medicine::findOrFail($id);
+        ActivityLog::log('حذف', 'دواء', $medicine->name, 'تم حذف الدواء من النظام');
         $medicine->delete();
 
         return response()->json([
@@ -453,5 +459,53 @@ class PharmacyApiController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    // ==========================================
+    // سجل الأنشطة (Activity Logs)
+    // ==========================================
+    public function getActivityLogs()
+    {
+        $logs = ActivityLog::latest()->limit(100)->get();
+        return response()->json($logs);
+    }
+
+    // ==========================================
+    // المبيعات الشهرية (Monthly Sales for Charts)
+    // ==========================================
+    public function getMonthlySales()
+    {
+        $months = [];
+        for ($i = 11; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $total = Order::where('status', 'completed')
+                ->whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->sum('total_price');
+            $count = Order::whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->count();
+            $months[] = [
+                'month'  => $date->locale('ar')->isoFormat('MMM YY'),
+                'sales'  => (float) $total,
+                'orders' => (int) $count,
+            ];
+        }
+        // الأقسام وعدد أدويتها
+        $categoriesData = Category::withCount('medicines')->orderByDesc('medicines_count')->get()
+            ->map(fn($c) => ['name' => $c->name, 'value' => $c->medicines_count]);
+
+        // توزيع المخزون
+        $stockData = [
+            ['name' => 'متوفر', 'value' => Medicine::where('stock_quantity', '>', 5)->count()],
+            ['name' => 'مخزون منخفض', 'value' => Medicine::where('stock_quantity', '>', 0)->where('stock_quantity', '<=', 5)->count()],
+            ['name' => 'نفذ', 'value' => Medicine::where('stock_quantity', 0)->count()],
+        ];
+
+        return response()->json([
+            'monthly_sales'   => $months,
+            'categories_data' => $categoriesData,
+            'stock_data'      => $stockData,
+        ]);
     }
 }
